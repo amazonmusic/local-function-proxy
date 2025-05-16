@@ -1,0 +1,61 @@
+{
+  "name": "@amazon/local-function-proxy",
+  "version": "0.1.0",
+  "description": "A TypeScript decorator library that enables seamless method call proxying between local and remote environments",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/",
+    "LICENSE",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18",
+    "npm": ">=8"
+  },
+  "scripts": {
+    "prebuild": "npm run clean && npm run lint:ci && npm run format:ci",
+    "clean": "rm -rf dist",
+    "build": "tsc -p tsconfig.build.json && npm run test",
+    "watch": "tsc -p tsconfig.build.json -w",
+    "prepublishOnly": "npm run build",
+    "lint:ci": "eslint \"src/**/*.ts\"",
+    "lint": "eslint \"src/**/*.ts\" --fix",
+    "format:ci": "prettier --check \"src/**/*.{ts,js,json,md}\"",
+    "format": "prettier --write \"src/**/*.{ts,js,json,md}\"",
+    "test": "jest --collectCoverage --collectCoverageFrom=src/**/*.{ts,js}"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/local-function-proxy/local-function-proxy.git"
+  },
+  "keywords": [
+    "typescript",
+    "decorator",
+    "proxy",
+    "function-proxy",
+    "method-proxy",
+    "local-development",
+    "remote-execution",
+    "development-tools",
+    "testing"
+  ],
+  "author": "Harsh Singhal <https://github.com/Harsh0/>",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/local-function-proxy/local-function-proxy/issues"
+  },
+  "homepage": "https://github.com/local-function-proxy/local-function-proxy#readme",
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.15.29",
+    "@typescript-eslint/eslint-plugin": "^8.33.1",
+    "eslint": "^9.28.0",
+    "eslint-config-prettier": "^10.1.2",
+    "eslint-plugin-prettier": "^5.4.1",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.3.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}
