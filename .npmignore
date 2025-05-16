@@ -46,3 +46,6 @@ jest.config.js
 
 .DS_Store
 Thumbs.db
+
+# Credentials
+credentials/
