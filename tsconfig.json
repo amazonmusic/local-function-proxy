@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "target": "ES2015",
+    "module": "commonjs",
+    "lib": ["ES2024"],
+    "declaration": true,
+    "outDir": "./dist",
+    "strict": true,
+    "esModuleInterop": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": false,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": false,
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "experimentalDecorators": true,
+    "strictPropertyInitialization": false,
+    "forceConsistentCasingInFileNames": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "typeRoots": ["./node_modules/@types"]
+  },
+  "include": ["./src/**/*"]
+}

@@ -1,0 +1,16 @@
+# Dependency directories
+node_modules/
+
+# Build output
+dist/
+coverage/
+
+# Logs
+npm-debug.log*
+
+# IDE files
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
