@@ -1,4 +1,4 @@
-# Local Function Proxy - `local-function-proxy`
+# Local Function Proxy - `@amazon/local-function-proxy`
 
 A TypeScript decorator library that enables seamless method call proxying between local and proxy environments. Perfect for developers who want to avoid complex local environment setups by proxying specific method calls to a fully configured environment.
 
@@ -42,7 +42,7 @@ There are multiple ways to configure the proxy behavior:
 
 #### Global Configuration with Static Proxy URL Configuration
 ```ts
-import { DevelopmentProxyInitializer, SecureConfigAdapter } from '@amzn/local-development-proxy';
+import { DevelopmentProxyInitializer, SecureConfigAdapter } from '@amazon/local-function-proxy';
 
 const { DevelopmentProxy, callActualMethod, resultKey } = new DevelopmentProxyInitializer({
     isProxyEnv: process.env.NODE_ENV === 'proxy',
@@ -76,7 +76,7 @@ const { DevelopmentProxy, callActualMethod, resultKey } = new DevelopmentProxyIn
 ### 2. Set Up Express Server (Proxy Environment)
 ```ts
 import express from 'express';
-import { HttpRouterAdapter } from '@amzn/local-development-proxy';
+import { HttpRouterAdapter } from '@amazon/roxy';
 
 const app = express();
 
@@ -275,7 +275,7 @@ npm run lint
 ## 📦 Installation
 
 ```sh
-npm install local-function-proxy
+npm install @amazon/local-function-proxy
 ```
 
 ## 🛡️ Security
