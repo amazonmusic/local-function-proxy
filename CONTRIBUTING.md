@@ -27,6 +27,14 @@ Contributions via pull requests are much appreciated. Before sending us a pull r
 2. You check existing open, and recently merged, pull requests to make sure someone else hasn't addressed the problem already.
 3. You open an issue to discuss any significant work - we would hate for your time to be wasted.
 
+## Branch Merge Strategy
+
+We follow specific merge strategies to maintain a clean and traceable git history:
+
+1. **PR to Main Branch**: All pull requests to the main branch must use the **Squash and Merge** strategy. This condenses all commits in your PR into a single, well-described commit on the main branch.
+
+2. **Main to Release Branch**: When merging from main branch to release branch, always use the **Merge Commit** strategy. This preserves the complete history of changes and makes it easier to track which features were included in each release.
+
 To send us a pull request, please:
 
 1. Fork the repository.

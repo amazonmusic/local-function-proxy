@@ -1,5 +1,9 @@
 # Local Function Proxy - `@amazon/local-function-proxy`
 
+[![npm version](https://img.shields.io/npm/v/@amazon/local-function-proxy.svg)](https://www.npmjs.com/package/@amazon/local-function-proxy)
+[![Node.js CI](https://github.com/amazonmusic/local-function-proxy/actions/workflows/ci.yml/badge.svg)](https://github.com/amazonmusic/local-function-proxy/actions)
+[![Downloads](https://img.shields.io/npm/dm/@amazon/local-function-proxy.svg)](https://www.npmjs.com/package/@amazon/local-function-proxy)
+
 A TypeScript decorator library that enables seamless method call proxying between local and proxy environments. Perfect for developers who want to avoid complex local environment setups by proxying specific method calls to a fully configured environment.
 
 ## 📋 Overview
@@ -76,7 +80,7 @@ const { DevelopmentProxy, callActualMethod, resultKey } = new DevelopmentProxyIn
 ### 2. Set Up Express Server (Proxy Environment)
 ```ts
 import express from 'express';
-import { HttpRouterAdapter } from '@amazon/roxy';
+import { HttpRouterAdapter } from '@amazon/local-function-proxy';
 
 const app = express();
 

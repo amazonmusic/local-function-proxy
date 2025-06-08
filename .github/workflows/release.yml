@@ -1,0 +1,78 @@
+name: Release
+on:
+  push:
+    branches:
+      - release
+
+jobs:
+  release:
+    name: Auto NPM Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      id-token: write
+    steps:
+      # Set up SSH for deploy key
+      - name: Set up SSH agent
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_KEY }}
+
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22
+          
+      - name: Install Dependencies
+        run: npm ci
+        
+      - name: Configure npm
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_PUBLISH_TOKEN }}" > ~/.npmrc
+          echo "registry=https://registry.npmjs.org/" >> ~/.npmrc
+          
+      - name: Semantic Release
+        id: semantic_release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
+        run: |
+          # Ensure git uses SSH for all operations
+          git config --global url."git@github.com:".insteadOf "https://github.com/"
+          
+          npx semantic-release --dry-run=false 2>&1 | tee semantic-release.log
+          
+          # Check if a new release was published
+          if grep -q "Published release" semantic-release.log || grep -q "Release note" semantic-release.log; then
+            echo "new_release_published=true" >> $GITHUB_OUTPUT
+            echo "New release was published"
+          else
+            echo "new_release_published=false" >> $GITHUB_OUTPUT
+            echo "No new release was published"
+          fi
+          
+      - name: Push release changes to main
+        if: steps.semantic_release.outputs.new_release_published == 'true'
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          
+          # Get the current release branch state
+          git fetch origin release
+          git checkout release
+          
+          # Get the version from the release branch
+          RELEASE_VERSION=$(node -p "require('./package.json').version")
+          
+          # Switch to main and merge
+          git fetch origin main
+          git checkout main
+          git merge origin/release --no-ff -m "chore: merge release v${RELEASE_VERSION} to main [skip ci]"
+          git push origin main
