@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { StatusCodes } from 'http-status-codes';
-import type { DevProxyConfig } from '../../utils';
-import { ErrorUtil, ProxyUtil, SecurityUtil } from '../../utils';
+import type { DevProxyConfig } from '..';
+import { ErrorUtil, ProxyUtil, SecurityUtil } from '..';
 
 // Mock axios and other dependencies
 jest.mock('axios');

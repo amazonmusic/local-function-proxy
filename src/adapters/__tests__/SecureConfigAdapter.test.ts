@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { SecureConfigAdapter } from '../../adapters';
+import { SecureConfigAdapter } from '..';
 import { DEFAULT_PROXY_SECURITY_TIMEOUT_MS } from '../../constants';
 
 describe('SecureConfigAdapter', () => {

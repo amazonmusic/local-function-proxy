@@ -6,7 +6,7 @@ import { Socket } from 'net';
 import { Readable } from 'stream';
 import request from 'supertest';
 import url from 'url';
-import { HttpRouterAdapter } from '../../adapters';
+import { HttpRouterAdapter } from '..';
 
 describe('HttpRouterAdapter', () => {
   const DEV_PROXY_BASE_ROUTE = '/dev-proxy';

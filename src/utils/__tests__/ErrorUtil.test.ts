@@ -1,6 +1,6 @@
 import type { AxiosRequestHeaders } from 'axios';
 import { AxiosError } from 'axios';
-import { ErrorUtil } from '../../utils';
+import { ErrorUtil } from '..';
 
 describe('ErrorUtil', () => {
   describe('serializeError', () => {
