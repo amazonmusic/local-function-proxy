@@ -1,8 +1,4 @@
-import {
-  HTTPBadRequestError,
-  HTTPMethodNotFoundError,
-  HTTPUnauthorizedError,
-} from '../../../types';
+import { HTTPBadRequestError, HTTPMethodNotFoundError, HTTPUnauthorizedError } from '..';
 
 describe('HTTPError', () => {
   describe('HTTPBadRequestError', () => {

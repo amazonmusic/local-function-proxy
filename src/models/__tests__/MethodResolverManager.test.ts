@@ -1,5 +1,5 @@
-import type { Resolver } from '../../models';
-import { MethodResolverManager } from '../../models';
+import type { Resolver } from '..';
+import { MethodResolverManager } from '..';
 
 describe('MethodResolverManager', () => {
   let manager: MethodResolverManager;

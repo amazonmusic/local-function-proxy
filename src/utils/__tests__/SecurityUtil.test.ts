@@ -1,5 +1,5 @@
 import type { SecureConfig } from '../..';
-import { SecurityUtil } from '../../utils';
+import { SecurityUtil } from '..';
 
 describe('SecurityUtil', () => {
   // Mock Date.now() to return a fixed timestamp
