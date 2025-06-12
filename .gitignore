@@ -17,3 +17,4 @@ Thumbs.db
 
 # Credentials
 credentials/
+deploy_key*
