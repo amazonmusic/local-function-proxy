@@ -11,6 +11,11 @@ export interface ProxyRoutingConfig {
   resultKey: string;
 }
 
+/**
+ * Route value meaning "no specific route", i.e. use the default resolver
+ */
+const ROOT_PATH = '/';
+
 export class HttpRouterAdapter {
   /**
    * Get an Express router for handling proxy requests
@@ -25,7 +30,7 @@ export class HttpRouterAdapter {
       callActualMethod({
         getHeader: (key: string) => req.get(key),
         getBody: () => req.body as Record<string, unknown>,
-        route: req.path !== '/' ? req.path : undefined,
+        route: HttpRouterAdapter.toRoute(req.path),
       })
         .then((result) => {
           res.status(StatusCodes.OK).send({ [resultKey]: result });
@@ -58,7 +63,7 @@ export class HttpRouterAdapter {
         const result = await callActualMethod({
           getHeader: (key: string) => req.headers[key.toLowerCase()] as string | undefined,
           getBody: () => body,
-          route: path !== '/' ? path : undefined,
+          route: HttpRouterAdapter.toRoute(path),
         });
         res.writeHead(StatusCodes.OK);
         res.end(JSON.stringify({ [resultKey]: result }));
@@ -67,6 +72,19 @@ export class HttpRouterAdapter {
         res.end(JSON.stringify(ErrorUtil.serializeError(error as Error)));
       }
     };
+  }
+
+  /**
+   * Normalize a request path into the route used for resolver lookup
+   *
+   * The root path carries no routing information, so it maps to undefined and
+   * lets the default resolver handle the call
+   *
+   * @param path The request path, relative to the proxy prefix
+   * @returns The route, or undefined when the path is the root path
+   */
+  private static toRoute(path: string | undefined): string | undefined {
+    return path !== ROOT_PATH ? path : undefined;
   }
 
   /**
@@ -91,6 +109,6 @@ export class HttpRouterAdapter {
    * @returns The URL string
    */
   private static getUrlFromRequestObject(req: IncomingMessage): string {
-    return req.url || '/';
+    return req.url || ROOT_PATH;
   }
 }

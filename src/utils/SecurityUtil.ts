@@ -7,13 +7,13 @@ export class SecurityUtil {
    * @param config The security configuration
    * @returns A header map with security token
    */
-  static getSecureHeaderMap(config?: SecureConfig): Record<string, string> {
+  static async getSecureHeaderMap(config?: SecureConfig): Promise<Record<string, string>> {
     if (!config) {
       return {};
     }
     const { headerKey, encrypt } = config;
     return {
-      [headerKey]: encrypt(String(Date.now())),
+      [headerKey]: await encrypt(String(Date.now())),
     };
   }
 
@@ -24,10 +24,10 @@ export class SecurityUtil {
    * @param config The security configuration
    * @returns True if header is valid, false otherwise
    */
-  static validateProxyHeader(
+  static async validateProxyHeader(
     getHeader: (key: string) => string | undefined,
     config?: SecureConfig,
-  ): boolean {
+  ): Promise<boolean> {
     if (!config) {
       return true;
     }
@@ -37,11 +37,22 @@ export class SecurityUtil {
       return false;
     }
     try {
-      const decrypted = decrypt(value);
-      const date = new Date(Number(decrypted));
-      return date.getTime() > Date.now() - timeoutMS;
+      const decrypted = await decrypt(value);
+      return SecurityUtil.isWithinTimeout(decrypted, timeoutMS);
     } catch {
       return false;
     }
+  }
+
+  /**
+   * Check whether a decrypted timestamp token is still within the allowed window
+   *
+   * @param decrypted The decrypted header value, expected to be epoch millis
+   * @param timeoutMS How long a token stays valid, in milliseconds
+   * @returns True if the token has not expired, false otherwise
+   */
+  private static isWithinTimeout(decrypted: string, timeoutMS: number): boolean {
+    const date = new Date(Number(decrypted));
+    return date.getTime() > Date.now() - timeoutMS;
   }
 }

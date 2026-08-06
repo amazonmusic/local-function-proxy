@@ -18,10 +18,7 @@ export class MethodResolverManager {
    * @returns void
    */
   add(targetMethodName: string, resolver: Resolver, route?: string): void {
-    if (!this._devProxyRouteToResolverMap.has(targetMethodName)) {
-      this._devProxyRouteToResolverMap.set(targetMethodName, new Map<string, Resolver>());
-    }
-    const targetMethodNameMap = this._devProxyRouteToResolverMap.get(targetMethodName)!;
+    const targetMethodNameMap = this.getOrCreateRouteMap(targetMethodName);
     if (!route) {
       if (targetMethodNameMap.has(DEFAULT_ROUTE)) {
         throw new Error(`Duplicate targetMethodName: ${targetMethodName}`);
@@ -50,5 +47,20 @@ export class MethodResolverManager {
       return;
     }
     return targetMethodNameMap.get(route || DEFAULT_ROUTE);
+  }
+
+  /**
+   * Get the route-to-resolver map for a method name, creating it if absent
+   *
+   * @param targetMethodName The name of the target method
+   * @returns The route-to-resolver map for that method name
+   */
+  private getOrCreateRouteMap(targetMethodName: string): Map<string, Resolver> {
+    let targetMethodNameMap = this._devProxyRouteToResolverMap.get(targetMethodName);
+    if (!targetMethodNameMap) {
+      targetMethodNameMap = new Map<string, Resolver>();
+      this._devProxyRouteToResolverMap.set(targetMethodName, targetMethodNameMap);
+    }
+    return targetMethodNameMap;
   }
 }

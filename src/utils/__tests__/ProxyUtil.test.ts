@@ -42,6 +42,37 @@ describe('ProxyUtil', () => {
       expect(result).toEqual(mockResponse.data);
     });
 
+    it('should forward the configured headers and timeout', async () => {
+      (axios.post as jest.Mock).mockResolvedValue({ data: {} });
+
+      await ProxyUtil.makeProxyCall({
+        ...mockConfig,
+        headers: { 'X-Proxy-Target': 'someMethod', 'x-token': 'signed' },
+        timeout: 1234,
+      });
+
+      expect(axios.post).toHaveBeenCalledWith(
+        'http://test-proxy.com/test-route',
+        { args: ['arg1', 'arg2'] },
+        {
+          timeout: 1234,
+          headers: { 'X-Proxy-Target': 'someMethod', 'x-token': 'signed' },
+        },
+      );
+    });
+
+    it('should post an empty args array unchanged', async () => {
+      (axios.post as jest.Mock).mockResolvedValue({ data: {} });
+
+      await ProxyUtil.makeProxyCall({ ...mockConfig, args: [] });
+
+      expect(axios.post).toHaveBeenCalledWith(
+        'http://test-proxy.com/test-route',
+        { args: [] },
+        expect.anything(),
+      );
+    });
+
     it('should handle internal server error with error deserialization', async () => {
       const mockError = {
         isAxiosError: true,
@@ -59,6 +90,54 @@ describe('ProxyUtil', () => {
       await expect(ProxyUtil.makeProxyCall(mockConfig)).rejects.toEqual(deserializedError);
 
       expect(ErrorUtil.deserializeError).toHaveBeenCalledWith(mockError.response.data);
+    });
+
+    it('should deserialize when the 500 status is on the error itself', async () => {
+      // axios surfaces the status on the error in some versions/paths
+      const mockError = {
+        isAxiosError: true,
+        status: StatusCodes.INTERNAL_SERVER_ERROR,
+        response: {
+          status: StatusCodes.BAD_GATEWAY,
+          data: { message: 'from top level status' },
+        },
+      };
+      const deserializedError = new Error('Deserialized error');
+      (axios.post as jest.Mock).mockRejectedValue(mockError);
+      (ErrorUtil.deserializeError as jest.Mock).mockReturnValue(deserializedError);
+
+      await expect(ProxyUtil.makeProxyCall(mockConfig)).rejects.toEqual(deserializedError);
+      expect(ErrorUtil.deserializeError).toHaveBeenCalledWith(mockError.response.data);
+    });
+
+    it('should rethrow a 500 axios error that carries no response', async () => {
+      const mockError = { isAxiosError: true, status: StatusCodes.INTERNAL_SERVER_ERROR };
+      (axios.post as jest.Mock).mockRejectedValue(mockError);
+
+      await expect(ProxyUtil.makeProxyCall(mockConfig)).rejects.toEqual(mockError);
+      expect(ErrorUtil.deserializeError).not.toHaveBeenCalled();
+    });
+
+    it('should rethrow non-500 axios errors without deserializing', async () => {
+      const mockError = {
+        isAxiosError: true,
+        response: { status: StatusCodes.BAD_REQUEST, data: { message: 'bad request' } },
+      };
+      (axios.post as jest.Mock).mockRejectedValue(mockError);
+
+      await expect(ProxyUtil.makeProxyCall(mockConfig)).rejects.toEqual(mockError);
+      expect(ErrorUtil.deserializeError).not.toHaveBeenCalled();
+    });
+
+    it('should rethrow axios errors with a 404 response without deserializing', async () => {
+      const mockError = {
+        isAxiosError: true,
+        response: { status: StatusCodes.NOT_FOUND, data: { message: 'not found' } },
+      };
+      (axios.post as jest.Mock).mockRejectedValue(mockError);
+
+      await expect(ProxyUtil.makeProxyCall(mockConfig)).rejects.toEqual(mockError);
+      expect(ErrorUtil.deserializeError).not.toHaveBeenCalled();
     });
 
     it('should handle axios error without response', async () => {
@@ -80,6 +159,17 @@ describe('ProxyUtil', () => {
       (axios.post as jest.Mock).mockRejectedValue(mockError);
 
       await expect(ProxyUtil.makeProxyCall(mockConfig)).rejects.toEqual(mockError);
+      expect(ErrorUtil.deserializeError).not.toHaveBeenCalled();
+    });
+
+    it('should rethrow a non-axios error that happens to carry a 500 response', async () => {
+      const mockError = Object.assign(new Error('looks like http'), {
+        response: { status: StatusCodes.INTERNAL_SERVER_ERROR, data: { message: 'nope' } },
+      });
+      (axios.post as jest.Mock).mockRejectedValue(mockError);
+
+      await expect(ProxyUtil.makeProxyCall(mockConfig)).rejects.toEqual(mockError);
+      expect(ErrorUtil.deserializeError).not.toHaveBeenCalled();
     });
 
     it('should make call without secure config', async () => {
