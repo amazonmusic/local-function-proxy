@@ -20,17 +20,21 @@ export class SecureConfigAdapter {
     timeoutMS: number = DEFAULT_PROXY_SECURITY_TIMEOUT_MS,
   ): SecureConfig {
     return {
-      encrypt: (data: string): string => {
+      encrypt: (data: string): Promise<string> => {
         if (!privateKey) {
-          throw new Error('Private key is not provided');
+          return Promise.reject(new Error('Private key is not provided'));
         }
-        return crypto.privateEncrypt(privateKey, Buffer.from(data, 'utf8')).toString('base64');
+        return Promise.resolve(
+          crypto.privateEncrypt(privateKey, Buffer.from(data, 'utf8')).toString('base64'),
+        );
       },
-      decrypt: (encryptedData: string): string => {
+      decrypt: (encryptedData: string): Promise<string> => {
         if (!cert) {
-          throw new Error('Cert is not provided');
+          return Promise.reject(new Error('Cert is not provided'));
         }
-        return crypto.publicDecrypt(cert, Buffer.from(encryptedData, 'base64')).toString('utf8');
+        return Promise.resolve(
+          crypto.publicDecrypt(cert, Buffer.from(encryptedData, 'base64')).toString('utf8'),
+        );
       },
       headerKey,
       timeoutMS,

@@ -1,7 +1,18 @@
 import { AxiosError } from 'axios';
 
+/**
+ * Plain JSON-safe representation of an Error, as sent over the proxy wire
+ */
+export type SerializedError = { [key: string]: any };
+
 export class ErrorUtil {
-  static serializeError(error: Error): { [key: string]: any } {
+  /**
+   * Convert an Error into a JSON-safe object to send back to the Test env
+   *
+   * @param error The error to serialize
+   * @returns A JSON-safe representation of the error
+   */
+  static serializeError(error: Error): SerializedError {
     if ((error as AxiosError).isAxiosError) {
       return ErrorUtil.serializeAxiosError(error as AxiosError);
     }
@@ -12,7 +23,13 @@ export class ErrorUtil {
     };
   }
 
-  static deserializeError(obj: { [key: string]: any }): Error {
+  /**
+   * Revive an Error from its serialized representation
+   *
+   * @param obj The serialized error
+   * @returns The reconstructed error
+   */
+  static deserializeError(obj: SerializedError): Error {
     if (obj.isAxiosError) {
       return ErrorUtil.deserializeAxiosError(obj);
     }
@@ -22,8 +39,14 @@ export class ErrorUtil {
     return error;
   }
 
-  private static serializeAxiosError(error: AxiosError): { [key: string]: any } {
-    const axiosError = {
+  /**
+   * Serialize an AxiosError, keeping only the JSON-safe parts of its response
+   *
+   * @param error The AxiosError to serialize
+   * @returns A JSON-safe representation of the AxiosError
+   */
+  private static serializeAxiosError(error: AxiosError): SerializedError {
+    const axiosError: SerializedError = {
       isAxiosError: true,
       ...error.toJSON(),
       response: error.response && {
@@ -33,15 +56,21 @@ export class ErrorUtil {
         data: error.response.data,
       },
     };
-    if ((axiosError as any).config) {
+    if (axiosError.config) {
       // strip out http and https Agent
-      (axiosError as any).config.httpAgent = undefined;
-      (axiosError as any).config.httpsAgent = undefined;
+      axiosError.config.httpAgent = undefined;
+      axiosError.config.httpsAgent = undefined;
     }
     return axiosError;
   }
 
-  private static deserializeAxiosError(obj: { [key: string]: any }): AxiosError {
+  /**
+   * Revive an AxiosError from its serialized representation
+   *
+   * @param obj The serialized AxiosError
+   * @returns The reconstructed AxiosError
+   */
+  private static deserializeAxiosError(obj: SerializedError): AxiosError {
     const error = new AxiosError(obj.message, obj.code, obj.config, obj.request, obj.response);
     error.stack = obj.stack as string | undefined;
     return error;
